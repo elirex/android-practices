@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">RxAndroidSample</string>
+    <string name="actionbar_rxbus">RxBus</string>
+    <string name="actionbar_double_binding">Double Binding</string>
+
+
     <string name="button_rxbus_demo">RxBus Demo</string>
+    <string name="button_double_binding_demo">Double Binding Demo</string>
 </resources>

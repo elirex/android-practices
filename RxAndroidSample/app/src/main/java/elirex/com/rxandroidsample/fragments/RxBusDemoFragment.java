@@ -1,8 +1,10 @@
 package elirex.com.rxandroidsample.fragments;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,9 +27,12 @@ public class RxBusDemoFragment extends Fragment {
         return rootView;
     }
 
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        ((AppCompatActivity) getActivity()).getSupportActionBar()
+                .setDisplayHomeAsUpEnabled(true);
         getActivity().getFragmentManager().beginTransaction()
                 .replace(R.id.framelayout_rxbus_1, new RxBusDemoTopFragment())
                 .replace(R.id.framelayout_rxbus_2, new RxBusDemoBottomFragment())

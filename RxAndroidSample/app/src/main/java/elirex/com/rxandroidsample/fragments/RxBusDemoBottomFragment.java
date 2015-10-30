@@ -32,7 +32,6 @@ public class RxBusDemoBottomFragment extends Fragment {
     private CompositeSubscription mSubscriptions;
     private TextView mTapCountTextView, mTapStatusTextView;
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

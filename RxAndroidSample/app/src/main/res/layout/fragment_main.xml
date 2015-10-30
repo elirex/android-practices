@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="@dimen/padding"
         >
 
@@ -16,7 +17,16 @@
             android:id="@+id/button_rxbus_demo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="8dp"
             android:text="@string/button_rxbus_demo"
+            />
+
+        <Button
+            android:id="@+id/button_double_binding_demo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/button_double_binding_demo"
             />
 
     </LinearLayout>

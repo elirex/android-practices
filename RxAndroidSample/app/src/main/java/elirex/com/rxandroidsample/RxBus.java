@@ -13,6 +13,9 @@ public class RxBus {
 
     private static volatile RxBus sInstance;
 
+    private final Subject<Object, Object> mBus =
+            new SerializedSubject<>(PublishSubject.create());
+
     private RxBus() {}
 
     public static synchronized RxBus getInstance() {
@@ -33,8 +36,5 @@ public class RxBus {
     public boolean hasObservers() {
         return mBus.hasObservers();
     }
-
-    private final Subject<Object, Object> mBus =
-            new SerializedSubject<>(PublishSubject.create());
 
 }
