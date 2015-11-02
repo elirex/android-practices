@@ -29,6 +29,14 @@
             android:text="@string/button_double_binding_demo"
             />
 
+        <Button
+            android:id="@+id/button_concurrency_schedulers_demo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/button_concurrency_schedulers"
+            />
+
     </LinearLayout>
 
 </ScrollView>

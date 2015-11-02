@@ -43,6 +43,9 @@ public class MainFragment extends Fragment {
         Button doubleBindingDemoButton = (Button) rootView.findViewById(
                 R.id.button_double_binding_demo);
 
+        Button concurrencySchedulers = (Button) rootView
+                .findViewById(R.id.button_concurrency_schedulers_demo);
+
         RxView.clicks(rxBusDemoButton).subscribe(new Action1<Object>() {
             @Override
             public void call(Object o) {
@@ -54,6 +57,14 @@ public class MainFragment extends Fragment {
             @Override
             public void call(Object o) {
                 onClick(new DoubleBindingDemo(), getString(R.string.actionbar_double_binding));
+            }
+        });
+
+        RxView.clicks(concurrencySchedulers).subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object o) {
+                onClick(new ConcurrencySchedulersDemoFragment(),
+                        getString(R.string.actionbar_concurrency_schedulers));
             }
         });
 
