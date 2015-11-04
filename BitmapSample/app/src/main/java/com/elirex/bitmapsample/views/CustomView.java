@@ -3,6 +3,7 @@ package com.elirex.bitmapsample.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.content.ContextCompat;
@@ -51,7 +52,21 @@ public class CustomView extends View {
     protected void onDraw(Canvas canvas) {
         // super.onDraw(canvas);
         // canvas.drawBitmap(mBitmap, 0, 0, null);
-        canvas.drawBitmap(mBitmap, null, new Rect(0, 0, 500, 500), null);
+        Matrix matrix = new Matrix();
+        float cosValue = (float) Math.cos(-Math.PI/6);
+        float sinValue = (float) Math.sin(-Math.PI/6);
+
+        // matrix.setValues(new float[] {
+        //         cosValue, -sinValue, 100,
+        //         sinValue, cosValue, 100,
+        //         0 , 0, 2
+        // });
+        matrix.setScale(500f/mBitmap.getWidth(), 500f/mBitmap.getHeight());
+        matrix.postTranslate(sScreenWidth/4, sScreenHeight/4);
+        matrix.postSkew(0.2f, 0.5f);
+
+         // canvas.drawBitmap(mBitmap, null, new Rect(0, 0, 500, 500), null);
+        canvas.drawBitmap(mBitmap, matrix, null);
     }
 
     public static int convertPixelsToDp(float px) {
