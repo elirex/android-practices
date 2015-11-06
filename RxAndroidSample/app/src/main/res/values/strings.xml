@@ -3,9 +3,11 @@
     <string name="actionbar_rxbus">RxBus</string>
     <string name="actionbar_double_binding">Double Binding</string>
     <string name="actionbar_concurrency_schedulers">Concurrency Schedulers</string>
+    <string name="actionbar_buffer">Buffer Demo</string>
 
 
     <string name="button_rxbus_demo">RxBus Demo</string>
     <string name="button_double_binding_demo">Double Binding Demo</string>
     <string name="button_concurrency_schedulers">Concurrency Schedulers Demo</string>
+    <string name="button_buffer">Buffer Demo</string>
 </resources>

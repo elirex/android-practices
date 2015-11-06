@@ -37,6 +37,13 @@
             android:text="@string/button_concurrency_schedulers"
             />
 
+        <Button
+            android:id="@+id/button_buffer_demo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/button_buffer"
+            />
     </LinearLayout>
 
 </ScrollView>
