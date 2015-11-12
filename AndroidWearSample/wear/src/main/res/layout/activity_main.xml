@@ -20,11 +20,19 @@
             >
 
             <Button
-                android:id="@+id/button_open_on_phone"
+                android:id="@+id/button_syncing_data"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/button_open_on_phone"
+                android:text="@string/button_syncing_data"
+                />
+
+            <Button
+                android:id="@+id/button_send_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/button_send_msg"
                 />
         </LinearLayout>
 

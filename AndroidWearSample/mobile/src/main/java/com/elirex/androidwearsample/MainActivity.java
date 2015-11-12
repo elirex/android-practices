@@ -3,6 +3,7 @@ package com.elirex.androidwearsample;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.elirex.common.Content;
 import com.google.android.gms.common.ConnectionResult;
@@ -14,8 +15,6 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
-
-import java.sql.Connection;
 
 public class MainActivity extends AppCompatActivity implements
         DataApi.DataListener, GoogleApiClient.ConnectionCallbacks,
@@ -29,6 +28,18 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Bundle args = getIntent()
+                .getBundleExtra(DataLayerListenerService.EXTRA_ARGS);
+        if(args != null) {
+            String message = args.getString(Content.WEARABLE_KEY_MSG);
+            TextView text = (TextView) findViewById(R.id.text);
+            text.setText(message);
+        }
+
+
+
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addOnConnectionFailedListener(this)
@@ -41,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements
         for(DataEvent event : dataEventBuffer) {
             if(event.getType() == DataEvent.TYPE_CHANGED) {
                 DataItem item = event.getDataItem();
-                if (item.getUri().getPath().equals(Content.WEARABLE_PATH)) {
+                if (item.getUri().getPath().equals(Content.DATA_API_PATH)) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
                     Log.d(LOG_TAG, "Received msg:"
                             + dataMap.getString(Content.WEARABLE_KEY_MSG));

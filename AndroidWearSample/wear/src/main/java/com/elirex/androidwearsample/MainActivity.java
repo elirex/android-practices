@@ -16,6 +16,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -31,9 +34,10 @@ public class MainActivity extends Activity implements
     private static final String STATE_RESOLVING_ERROR = "resolving_error";
 
     private GoogleApiClient mGoogleApiClient;
+    private Node mNode;
     private boolean mResolvingError = false;
 
-    private Button mOpenOnPhoneButton;
+    private Button mSyncingDataButton, mSendMessageButton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,13 +53,22 @@ public class MainActivity extends Activity implements
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        mOpenOnPhoneButton = (Button) findViewById(R.id.button_open_on_phone);
-        mOpenOnPhoneButton.setOnClickListener(new View.OnClickListener() {
+        mSyncingDataButton = (Button) findViewById(R.id.button_syncing_data);
+        mSyncingDataButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("test");
+                syncingData("Sync Data");
             }
         });
+
+        mSendMessageButton = (Button) findViewById(R.id.button_send_msg);
+        mSendMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               sendMessage("Open on the phone");
+            }
+        });
+
         // final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         // stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
         //     @Override
@@ -65,24 +78,50 @@ public class MainActivity extends Activity implements
         // });
     }
 
-    private void sendMessage(String msg) {
+    private void syncingData(String msg) {
        if(mGoogleApiClient.isConnected()) {
            PutDataMapRequest putDataMapRequest =
-                   PutDataMapRequest.create(Content.WEARABLE_PATH);
+                   PutDataMapRequest.create(Content.DATA_API_PATH);
            putDataMapRequest.getDataMap().putString(Content.WEARABLE_KEY_MSG, msg);
+           putDataMapRequest.getDataMap().putDouble("timestamp", System.currentTimeMillis());
            PutDataRequest putDataRequest = putDataMapRequest.asPutDataRequest();
            PendingResult<DataApi.DataItemResult> pendingResult =
                    Wearable.DataApi.putDataItem(mGoogleApiClient, putDataRequest);
            pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
                @Override
                public void onResult(DataApi.DataItemResult result) {
-                   Log.d(LOG_TAG, "Result:" + result.getStatus().getStatusMessage());
+                   Log.d(LOG_TAG, "Syncing Data Result:" + result.getStatus().getStatusMessage());
                }
            });
 
        } else {
            Log.i(LOG_TAG, "Wearable not connected");
        }
+    }
+
+    private void sendMessage(String msg) {
+        if(mGoogleApiClient.isConnected()) {
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, mNode.getId(),
+                    Content.MESSAGE_API_PATH, msg.getBytes())
+                    .setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
+                        @Override
+                        public void onResult(MessageApi.SendMessageResult sendMessageResult) {
+                            Log.d(LOG_TAG, "Send Message Result:" + sendMessageResult.getStatus().getStatusMessage());
+                        }
+                    });
+        }
+    }
+
+    private void resolvedNode() {
+        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
+                .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                    @Override
+                    public void onResult(NodeApi.GetConnectedNodesResult nodes) {
+                       for(Node node : nodes.getNodes()) {
+                          mNode = node;
+                       }
+                    }
+                });
     }
 
     @Override
@@ -105,13 +144,12 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onConnected(Bundle bundle) {
+        resolvedNode();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
         // The connection has been interrupted.
-
-
     }
 
     @Override
