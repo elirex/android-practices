@@ -5,4 +5,5 @@
 
     <string name="button_syncing_data">Syncing Data</string>
     <string name="button_send_msg">Send Message</string>
+    <string name="button_send_msg_channel">Send Message By Channel</string>
 </resources>

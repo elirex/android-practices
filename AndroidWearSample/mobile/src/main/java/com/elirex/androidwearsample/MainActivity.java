@@ -23,18 +23,18 @@ public class MainActivity extends AppCompatActivity implements
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private GoogleApiClient mGoogleApiClient;
+    private TextView mText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mText = (TextView) findViewById(R.id.text);
         Bundle args = getIntent()
                 .getBundleExtra(DataLayerListenerService.EXTRA_ARGS);
         if(args != null) {
             String message = args.getString(Content.WEARABLE_KEY_MSG);
-            TextView text = (TextView) findViewById(R.id.text);
-            text.setText(message);
+            mText.setText(message);
         }
 
 
@@ -54,8 +54,9 @@ public class MainActivity extends AppCompatActivity implements
                 DataItem item = event.getDataItem();
                 if (item.getUri().getPath().equals(Content.DATA_API_PATH)) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                    Log.d(LOG_TAG, "Received msg:"
-                            + dataMap.getString(Content.WEARABLE_KEY_MSG));
+                    String msg = dataMap.getString(Content.WEARABLE_KEY_MSG);
+                    Log.d(LOG_TAG, "Received msg:" + msg);
+                    mText.setText(msg);
                 }
             }
         }

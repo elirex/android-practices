@@ -3,18 +3,17 @@ package com.elirex.androidwearsample;
 import android.app.Activity;
 import android.content.IntentSender;
 import android.os.Bundle;
-import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.SeekBar;
 
 import com.elirex.common.Content;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Channel;
+import com.google.android.gms.wearable.ChannelApi;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
@@ -22,6 +21,10 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
 
 public class MainActivity extends Activity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -37,7 +40,8 @@ public class MainActivity extends Activity implements
     private Node mNode;
     private boolean mResolvingError = false;
 
-    private Button mSyncingDataButton, mSendMessageButton;
+    private Button mSyncingDataButton, mSendButtonWithMessageApi, mSendButtonWithChannelApi;
+    private int mSendCount = 0;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,14 +65,21 @@ public class MainActivity extends Activity implements
             }
         });
 
-        mSendMessageButton = (Button) findViewById(R.id.button_send_msg);
-        mSendMessageButton.setOnClickListener(new View.OnClickListener() {
+        mSendButtonWithMessageApi = (Button) findViewById(R.id.button_send_msg);
+        mSendButtonWithMessageApi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               sendMessage("Open on the phone");
+                sendMessageThroughMessageApi("Open on the phone (Message Api)");
             }
         });
 
+        mSendButtonWithChannelApi = (Button) findViewById(R.id.button_send_msg_channel);
+        mSendButtonWithChannelApi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMessageThroughChannelApi("Open on the phone (Channel Api)");
+            }
+        });
         // final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         // stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
         //     @Override
@@ -82,6 +93,7 @@ public class MainActivity extends Activity implements
        if(mGoogleApiClient.isConnected()) {
            PutDataMapRequest putDataMapRequest =
                    PutDataMapRequest.create(Content.DATA_API_PATH);
+           msg += "_" + (mSendCount++);
            putDataMapRequest.getDataMap().putString(Content.WEARABLE_KEY_MSG, msg);
            putDataMapRequest.getDataMap().putDouble("timestamp", System.currentTimeMillis());
            PutDataRequest putDataRequest = putDataMapRequest.asPutDataRequest();
@@ -99,7 +111,7 @@ public class MainActivity extends Activity implements
        }
     }
 
-    private void sendMessage(String msg) {
+    private void sendMessageThroughMessageApi(String msg) {
         if(mGoogleApiClient.isConnected()) {
             Wearable.MessageApi.sendMessage(mGoogleApiClient, mNode.getId(),
                     Content.MESSAGE_API_PATH, msg.getBytes())
@@ -112,13 +124,64 @@ public class MainActivity extends Activity implements
         }
     }
 
+    private void sendMessageThroughChannelApi(final String msg) {
+        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
+                .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                    @Override
+                    public void onResult(NodeApi.GetConnectedNodesResult result) {
+                        final List<Node> nodes = result.getNodes();
+                        for(final Node node : nodes) {
+                            if(node.isNearby()) {
+                                Log.d(LOG_TAG, "Node {id:" + node.getId() + ", name:" + node.getDisplayName() +"}");
+                                Wearable.ChannelApi.openChannel(mGoogleApiClient,
+                                        node.getId(), Content.MESSAGE_API_PATH)
+                                        .setResultCallback(new ResultCallback<ChannelApi.OpenChannelResult>() {
+                                            @Override
+                                            public void onResult(ChannelApi.OpenChannelResult openChannelResult) {
+                                                final Channel channel = openChannelResult.getChannel();
+                                                channel.getOutputStream(mGoogleApiClient)
+                                                        .setResultCallback(new ResultCallback<Channel.GetOutputStreamResult>() {
+                                                            @Override
+                                                            public void onResult(Channel.GetOutputStreamResult getOutputStreamResult) {
+                                                                OutputStream stream = null;
+                                                                try {
+                                                                    stream = getOutputStreamResult.getOutputStream();
+                                                                    stream.write(msg.getBytes());
+                                                                    Log.d(LOG_TAG, "sendMessageToNearByDevice");
+                                                                } catch (IOException e) {
+                                                                    Log.e(LOG_TAG, "Send message to near by device error: {"
+                                                                            + "Node Id:" + channel.getNodeId()
+                                                                            + ", Path:" + channel.getPath()
+                                                                            + ", Error message:" + e.getMessage()
+                                                                            + ", Error cause:" + e.getCause() + "}");
+                                                                } finally {
+                                                                    try {
+                                                                        if (stream != null) {
+                                                                            stream.close();
+                                                                        }
+                                                                    } catch (IOException ex) {
+                                                                        Log.e(LOG_TAG, "Closing stream error");
+                                                                    } finally {
+                                                                        channel.close(mGoogleApiClient);
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                            }
+                                        });
+                            }
+                        }
+                    }
+                });
+    }
+
     private void resolvedNode() {
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                     @Override
                     public void onResult(NodeApi.GetConnectedNodesResult nodes) {
                        for(Node node : nodes.getNodes()) {
-                          mNode = node;
+                          if(node.isNearby()) mNode = node;
                        }
                     }
                 });
