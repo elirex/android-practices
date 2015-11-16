@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +19,9 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 import elirex.com.rxandroidsample.R;
+import elirex.com.rxandroidsample.ThreadLogAdapter;
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -46,7 +47,7 @@ public class ConcurrencySchedulersDemoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.framgnet_concurrency_schedulers_demo,
+        mRootView = inflater.inflate(R.layout.framgmet_concurrency_schedulers_demo,
                 container, false);
         return mRootView;
     }
@@ -54,6 +55,8 @@ public class ConcurrencySchedulersDemoFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        ((AppCompatActivity) getActivity()).getSupportActionBar()
+                .setDisplayHomeAsUpEnabled(true);
         setupUIComponents();
         setupLogger();
     }
@@ -149,14 +152,6 @@ public class ConcurrencySchedulersDemoFragment extends Fragment {
         return Looper.myLooper() == Looper.getMainLooper();
     }
 
-    private class ThreadLogAdapter extends ArrayAdapter<String> {
-
-        public ThreadLogAdapter(Context context, int resource,
-                                int textItemResource, List<String> logs) {
-            super(context, resource, textItemResource, logs);
-        }
-
-    }
 
     @Override
     public void onDestroy() {

@@ -3,6 +3,7 @@ package elirex.com.rxandroidsample.fragments;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -45,6 +46,8 @@ public class DoubleBindingDemo extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        ((AppCompatActivity) getActivity()).getSupportActionBar()
+                .setDisplayHomeAsUpEnabled(true);
         setUICompontents();
         mSubscriptoin = mResultSubject.asObservable().subscribe(
                 new Action1<Double>() {

@@ -10,4 +10,5 @@
     <string name="button_double_binding_demo">Double Binding Demo</string>
     <string name="button_concurrency_schedulers">Concurrency Schedulers Demo</string>
     <string name="button_buffer">Buffer Demo</string>
+    <string name="button_timing">Timing Demo</string>
 </resources>
