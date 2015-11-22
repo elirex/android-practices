@@ -2,7 +2,10 @@ package com.elirex.weather;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
@@ -39,8 +42,17 @@ public class ForecastFragment extends Fragment implements
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setupUIComponents();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    private void updateWeather() {
         FetchWeatherTask weatherTask = new FetchWeatherTask(this);
-        weatherTask.execute("Taiwan");
+        weatherTask.execute(getLocation());
     }
 
     private void setupUIComponents() {
@@ -72,12 +84,16 @@ public class ForecastFragment extends Fragment implements
             new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    FetchWeatherTask weatherTask =
-                            new FetchWeatherTask(ForecastFragment.this);
-                    weatherTask.execute("Taiwan");
+                    updateWeather();
                 }
             };
 
+    private String getLocation() {
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        return prefs.getString(getString(R.string.pref_location_key),
+                getString(R.string.title_activity_detail));
+    }
 
     @Override
     public void onData(List<String> list) {

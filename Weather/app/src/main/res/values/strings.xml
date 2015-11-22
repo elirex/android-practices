@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">Weather</string>
-    <string name="fragment_forecast">Weather</string>
-    <string name="fragment_detail">Forecast Detail</string>
+    <string name="title_activity_detail">Details</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="pref_location_label">Location</string>
+    <string name="pref_location_key">location</string>
+    <string name="pref_location_default">Taiwan</string>
+
 </resources>
