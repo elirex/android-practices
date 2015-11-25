@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
@@ -62,7 +63,7 @@ public class CustomView extends View {
         //         0 , 0, 2
         // });
         matrix.setScale(500f/mBitmap.getWidth(), 500f/mBitmap.getHeight());
-        matrix.postTranslate(sScreenWidth/4, sScreenHeight/4);
+        matrix.postTranslate(sScreenWidth / 4, sScreenHeight / 4);
         matrix.postSkew(0.2f, 0.5f);
 
          // canvas.drawBitmap(mBitmap, null, new Rect(0, 0, 500, 500), null);
