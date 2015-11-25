@@ -50,6 +50,8 @@ public class MainFragment extends Fragment {
 
         Button timingDemoButton = (Button) rootView.findViewById(R.id.button_timing_demo);
 
+        Button retrofitDemoButton = (Button) rootView.findViewById(R.id.button_retrofit_demo);
+
         RxView.clicks(rxBusDemoButton).subscribe(new Action1<Object>() {
             @Override
             public void call(Object o) {
@@ -84,6 +86,13 @@ public class MainFragment extends Fragment {
             @Override
             public void call(Object o) {
                 onClick(new TimingDemoFragment(), getString(R.string.button_timing));
+            }
+        });
+
+        RxView.clicks(retrofitDemoButton).subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object o) {
+                onClick(new RetrofitFragment(), getString(R.string.button_retrofit));
             }
         });
 

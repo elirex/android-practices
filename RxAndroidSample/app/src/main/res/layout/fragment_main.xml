@@ -52,6 +52,13 @@
             android:layout_margin="8dp"
             android:text="@string/button_timing"
             />
+        <Button
+            android:id="@+id/button_retrofit_demo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/button_retrofit"
+            />
     </LinearLayout>
 
 </ScrollView>

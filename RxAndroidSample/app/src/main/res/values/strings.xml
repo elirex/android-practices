@@ -11,4 +11,5 @@
     <string name="button_concurrency_schedulers">Concurrency Schedulers Demo</string>
     <string name="button_buffer">Buffer Demo</string>
     <string name="button_timing">Timing Demo</string>
+    <string name="button_retrofit">Retrofit Demo</string>
 </resources>
