@@ -32,6 +32,8 @@ public class SettingsActivity extends AppCompatActivity {
                         addPreferencesFromResource(R.xml.pref_general);
                         bindPreferenceSummaryToValue(findPreference(
                                 getString(R.string.pref_location_key)));
+                        bindPreferenceSummaryToValue(findPreference(
+                                getString(R.string.pref_units_key)));
                 }
 
                 private void bindPreferenceSummaryToValue(Preference preference) {

@@ -1,7 +1,12 @@
 package com.elirex.weather;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -27,10 +32,12 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
     private static final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
+    private Context mContext;
     private OnWeatherDataListener mDataListener;
 
-    public FetchWeatherTask(OnWeatherDataListener listener) {
-       mDataListener = listener;
+    public FetchWeatherTask(Context context, OnWeatherDataListener listener) {
+        mContext = context;
+        mDataListener = listener;
     }
 
     @Override
@@ -119,7 +126,14 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         return shortenedDateFormat.format(time);
     }
 
-    private String formatHighLows(double high, double low) {
+    private String formatHighLows(double high, double low, String unitType) {
+        if(unitType.equals(mContext.getString(R.string.pref_units_imperial))){
+            Log.d(LOG_TAG, " Imperial");
+            high = (high * 1.8) + 32;
+            low = (low * 1.8) + 32;
+        }
+
+
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
         return roundedHigh + "/" + roundedLow;
@@ -132,7 +146,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         final String OWM_TEMPERATURE = "temp";
         final String OWM_MAX = "max";
         final String OWM_MIN = "min";
-        final String OWM_DESCRIPION = "main";
+        final String OWM_DESCRIPTION = "main";
         final String OWM_DATE = "dt";
 
         JSONObject json = new JSONObject(forecastJsonStr);
@@ -151,12 +165,18 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             day = getReadableDateString(dayForecast.getLong(OWM_DATE) * 1000);
             JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER)
                     .getJSONObject(0);
-            description = weatherObject.getString(OWM_DESCRIPION);
+            description = weatherObject.getString(OWM_DESCRIPTION);
             JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
             double high = temperatureObject.getDouble(OWM_MAX);
             double low = temperatureObject.getDouble(OWM_MIN);
 
-            highAndLow = formatHighLows(high, low);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            String unitType = prefs.getString(
+                    mContext.getString(R.string.pref_units_key),
+                    mContext.getString(R.string.pref_units_metric));
+            Log.d(LOG_TAG, "Units:" + unitType);
+
+            highAndLow = formatHighLows(high, low, unitType);
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
         }
 
