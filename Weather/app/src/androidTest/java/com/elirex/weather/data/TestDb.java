@@ -73,13 +73,51 @@ public class TestDb extends AndroidTestCase {
     }
 
     public void testLocationTable() {
+        insertLocation();
+    }
+
+
+
+    public void testWeatherTable() {
+        long locationRowId = insertLocation();
+        assertFalse("Error: Location Not Inserted Correctly", locationRowId == -1L);
+
+        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues weatherValues = TestUtilities.createWeatherValues(locationRowId);
+
+        long weatherRowId = db.insert(WeatherContract.WeatherEntry.TABLE_NAME,
+                null, weatherValues);
+        assertTrue(weatherRowId != -1);
+        Cursor weatherCursor = db.query(
+                WeatherContract.WeatherEntry.TABLE_NAME, // Table name
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null, // columns to group by
+                null, // columns to filter by row groups
+                null // sort order
+        );
+
+        assertTrue("Error: No Records returned from location query", weatherCursor.moveToFirst());
+        TestUtilities.validateCurrentRecord("testInserTeadDb weatherEntry failed to validate",
+                weatherCursor, weatherValues);
+        assertFalse("Error: More than one record returned from weather query",
+                weatherCursor.moveToNext());
+        weatherCursor.close();
+        dbHelper.close();
+    }
+
+    public long insertLocation() {
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
 
         long locationRowId;
-        locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null,
+        locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME,
+                null,
                 testValues);
 
         assertTrue(locationRowId != -1);
@@ -101,10 +139,7 @@ public class TestDb extends AndroidTestCase {
 
         cursor.close();
         db.close();
-    }
-
-    public long insertLocation() {
-        return -1L;
+        return locationRowId;
     }
 
 }
