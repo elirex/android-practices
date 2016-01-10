@@ -1,14 +1,14 @@
-package com.elirex.weather;
+package com.elirex.weather.networks;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.text.format.Time;
 import android.util.Log;
+
+import com.elirex.weather.BuildConfig;
+import com.elirex.weather.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;

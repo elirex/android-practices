@@ -1,44 +1,30 @@
-package com.elirex.weather;
+package com.elirex.weather.activities;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-/**
- * Created by Wang, Sheng-Yuan (Elirex) on 2015/11/22.
- */
-public class DetailActivity extends AppCompatActivity {
+import com.elirex.weather.fragments.ForecastFragment;
+import com.elirex.weather.R;
 
-    private static final String LOG_TAG = DetailActivity.class.getSimpleName();
+public class MainActivity extends AppCompatActivity {
 
-    public static final String EXTRA_BUNDLE = "extra_bundle";
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         if(savedInstanceState == null) {
-            Intent intent = getIntent();
-            Bundle args = null;
-            if(intent != null && intent.hasExtra(EXTRA_BUNDLE)) {
-                args = intent.getBundleExtra(EXTRA_BUNDLE);
-            }
-            Fragment fragmentClass = new DetailFragment();
-            fragmentClass.setArguments(args);
             getFragmentManager().beginTransaction()
-                    .replace(R.id.container, fragmentClass,
-                            getString(R.string.title_activity_detail))
+                    .add(R.id.container, new ForecastFragment())
                     .commit();
         }
-
     }
 
     @Override
@@ -59,6 +45,7 @@ public class DetailActivity extends AppCompatActivity {
             openPreferredLocationInMap();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -79,4 +66,5 @@ public class DetailActivity extends AppCompatActivity {
         }
 
     }
+
 }

@@ -1,4 +1,4 @@
-package com.elirex.weather;
+package com.elirex.weather.activities;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -6,6 +6,8 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+
+import com.elirex.weather.R;
 
 /**
  * Created by Wang, Sheng-Yuan (Elirex) on 2015/11/22.

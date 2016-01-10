@@ -1,10 +1,9 @@
-package com.elirex.weather;
+package com.elirex.weather.fragments;
 
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,6 +13,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.elirex.weather.networks.FetchWeatherTask;
+import com.elirex.weather.R;
+import com.elirex.weather.activities.DetailActivity;
 
 import java.util.List;
 
