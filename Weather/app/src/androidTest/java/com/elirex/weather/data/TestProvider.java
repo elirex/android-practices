@@ -102,6 +102,26 @@ public class TestProvider extends AndroidTestCase {
         }
     }
 
+    public void testGetType() {
+        String type = mContext.getContentResolver()
+                .getType(WeatherContract.WeatherEntry.CONTENT_URI);
+
+        assertEquals("Error: the Weather CONTENT_URI should return WeatehrEntry.CONTENT_TYPE", WeatherContract.WeatherEntry.CONTENT_TYPE, type);
+
+        String testLocation = "94047";
+        type = mContext.getContentResolver().getType(WeatherContract.WeatherEntry.buildWeatherLocation(testLocation));
+        assertEquals("Error: the WeatherEntry CONTENT_URI with location should return WeatherEntry.CONTENT_TYPE",
+                WeatherContract.WeatherEntry.CONTENT_TYPE, type);
+
+        long testDate = 1419120000L;
+        type = mContext.getContentResolver().getType(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(testLocation, testDate));
+
+        assertEquals("Error: the WeatherEntry CONTENT_URI with location and date should return WeatherEntry.CONTENT_ITEM_TYPE", WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE, type);
+
+        type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.CONTENT_URI);
+        assertEquals("Error: the LocationEntry CONTENT_URI should return LocationEntry.CONTENT_TYPE", WeatherContract.LocationEntry.CONTENT_TYPE, type);
+    }
+
     /* === Protected Methods === */
     @Override
     protected void setUp() throws Exception {

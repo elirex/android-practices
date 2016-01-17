@@ -71,6 +71,10 @@ public class WeatherProvider extends ContentProvider {
     public String getType(Uri uri) {
         final int mathc = sUriMather.match(uri);
         switch (mathc) {
+            case WEATHER_WITH_LOCATION_AND_DATE:
+                return WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE;
+            case WEATHER_WITH_LOCATION:
+                return WeatherContract.WeatherEntry.CONTENT_TYPE;
             case WEATHER:
                 return WeatherContract.WeatherEntry.CONTENT_TYPE;
             case LOCATION:
