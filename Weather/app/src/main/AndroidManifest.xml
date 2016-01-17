@@ -30,6 +30,11 @@
             android:label="@string/title_activity_settings"
             />
 
+        <provider
+            android:authorities="com.elirex.weather"
+            android:name=".data.WeatherProvider"
+            />
+
     </application>
 
 </manifest>

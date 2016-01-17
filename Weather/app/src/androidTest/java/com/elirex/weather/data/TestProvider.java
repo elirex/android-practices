@@ -1,6 +1,9 @@
 package com.elirex.weather.data;
 
+import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
@@ -82,6 +85,21 @@ public class TestProvider extends AndroidTestCase {
 
     public void deleteAllRecords() {
         deleteAllRecordsFromDB();
+    }
+
+    public void testProviderRegistry() {
+        PackageManager pm = mContext.getPackageManager();
+
+        ComponentName componentName = new ComponentName(mContext.getPackageName(), WeatherProvider.class.getName());
+
+        try {
+            ProviderInfo providerInfo = pm.getProviderInfo(componentName, 0);
+            assertEquals("Error: WeatherProvider registered with authority: " +
+            providerInfo.authority + " instead of authority: " + WeatherContract.CONTENT_AUTHORITY, providerInfo.authority, WeatherContract.CONTENT_AUTHORITY);
+        } catch (PackageManager.NameNotFoundException e) {
+            assertTrue("Error: WeatehrProvider not registered at " +
+                    mContext.getPackageName(), false);
+        }
     }
 
     /* === Protected Methods === */

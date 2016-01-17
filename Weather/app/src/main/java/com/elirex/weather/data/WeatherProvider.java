@@ -184,7 +184,17 @@ public class WeatherProvider extends ContentProvider {
 
     /* === Package Methods === */
     static UriMatcher buildUriMather() {
-        return null;
+        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority = WeatherContract.CONTENT_AUTHORITY;
+
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER, WEATHER);
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*",
+                WEATHER_WITH_LOCATION);
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*/#",
+                WEATHER_WITH_LOCATION_AND_DATE);
+
+        matcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
+        return matcher;
     }
 
     /* === Private Methods === */
