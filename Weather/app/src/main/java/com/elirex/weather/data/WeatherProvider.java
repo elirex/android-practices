@@ -32,6 +32,7 @@ public class WeatherProvider extends ContentProvider {
         sWeatherByLocationSettingQueryBuilder = new SQLiteQueryBuilder();
         sWeatherByLocationSettingQueryBuilder.setTables(
                 WeatherContract.WeatherEntry.TABLE_NAME + " INNER JOIN " +
+                        WeatherContract.LocationEntry.TABLE_NAME +
                         " ON " + WeatherContract.WeatherEntry.TABLE_NAME +
                         "." + WeatherContract.WeatherEntry.COLUMN_LOC_KEY +
                         " = " + WeatherContract.LocationEntry.TABLE_NAME +
@@ -95,15 +96,33 @@ public class WeatherProvider extends ContentProvider {
                 retCursor = getWeatherByLocationSettingAndDate(uri, projection,
                         sortOrder);
                 break;
+            // "weather/*"
             case WEATHER_WITH_LOCATION:
                 retCursor = getWeatherByLocationSetting(uri, projection,
                         sortOrder);
                 break;
+            // "weather"
             case WEATHER:
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             case LOCATION:
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -119,11 +138,11 @@ public class WeatherProvider extends ContentProvider {
         final int match = sUriMather.match(uri);
         Uri returnUri;
         switch (match) {
-            case WEATHER:
+            case WEATHER: {
                 normalizeDate(values);
                 long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME,
                         null, values);
-                if(_id > 0) {
+                if (_id > 0) {
                     returnUri = WeatherContract.WeatherEntry
                             .buildWeatherUri(_id);
                 } else {
@@ -131,8 +150,18 @@ public class WeatherProvider extends ContentProvider {
                             .SQLException("Failed to insert row into " + uri);
                 }
                 break;
+            }
+            case LOCATION: {
+                long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
+                if (_id > 0) {
+                    returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            }
             default:
-                throw new UnsupportedOperationException("Unknow uri: " + uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;

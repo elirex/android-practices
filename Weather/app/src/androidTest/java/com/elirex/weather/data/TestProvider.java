@@ -1,11 +1,13 @@
 package com.elirex.weather.data;
 
 import android.content.ComponentName;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.test.AndroidTestCase;
 
 /**
@@ -97,7 +99,7 @@ public class TestProvider extends AndroidTestCase {
             assertEquals("Error: WeatherProvider registered with authority: " +
             providerInfo.authority + " instead of authority: " + WeatherContract.CONTENT_AUTHORITY, providerInfo.authority, WeatherContract.CONTENT_AUTHORITY);
         } catch (PackageManager.NameNotFoundException e) {
-            assertTrue("Error: WeatehrProvider not registered at " +
+            assertTrue("Error: WeatherProvider not registered at " +
                     mContext.getPackageName(), false);
         }
     }
@@ -120,6 +122,101 @@ public class TestProvider extends AndroidTestCase {
 
         type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.CONTENT_URI);
         assertEquals("Error: the LocationEntry CONTENT_URI should return LocationEntry.CONTENT_TYPE", WeatherContract.LocationEntry.CONTENT_TYPE, type);
+    }
+
+    public void testInsertReadProvider() {
+        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
+
+        // Register a content observer for our insert. This time, directly with the content resolver
+        TestUtilities.TestContentObserver tco = TestUtilities.getTextContentObserver();
+        mContext.getContentResolver().registerContentObserver(
+                WeatherContract.LocationEntry.CONTENT_URI, true, tco);
+        Uri locationUri = mContext.getContentResolver().insert(
+                WeatherContract.LocationEntry.CONTENT_URI, testValues);
+
+        tco.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(tco);
+
+        long locationRowId = ContentUris.parseId(locationUri);
+
+        // Verify we got a row back.
+        assertTrue(locationRowId != -1);
+
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating LocationEntry.",
+                cursor, testValues);
+
+        // Fantastic. Now that we have a location, add some weather!
+        ContentValues weatherValues = TestUtilities.createWeatherValues(locationRowId);
+        // The TestContentObserver is a one-shot class
+        tco = TestUtilities.getTextContentObserver();
+
+        mContext.getContentResolver()
+                .registerContentObserver(WeatherContract.WeatherEntry.CONTENT_URI, true, tco);
+
+        Uri weatherInsertUri = mContext.getContentResolver()
+                .insert(WeatherContract.WeatherEntry.CONTENT_URI, weatherValues);
+        assertTrue(weatherInsertUri != null);
+
+        tco.waitForNotificationOrFail();;
+        mContext.getContentResolver().unregisterContentObserver(tco);
+
+        // A cursor is your primary interface to the query results.
+        Cursor weatherCursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating WeatherEntry insert.",
+                weatherCursor, weatherValues);
+
+        weatherValues.putAll(testValues);
+
+        // Get the joined Weather and Location data
+        weatherCursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.buildWeatherLocation(TestUtilities.TEST_LOCATION),
+                null,
+                null,
+                null,
+                null
+        );
+        TestUtilities.validateCursor("testInsertReadProvider. Error vaildating joined Weather and Location Data.",
+                weatherCursor, weatherValues);
+
+        // Get the joined Weather and Location data with a start date
+        weatherCursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+                        TestUtilities.TEST_LOCATION, TestUtilities.TEST_DATE),
+                null,
+                null,
+                null,
+                null
+        );
+        TestUtilities.validateCursor("testInsertReadProvider. Error vaildating joined Weather and Location Data with start date.",
+                weatherCursor, weatherValues);
+
+        // Get the joined Weather data for a specific date
+        weatherCursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                        TestUtilities.TEST_LOCATION, TestUtilities.TEST_DATE),
+                null,
+                null,
+                null,
+                null
+        );
+        TestUtilities.validateCursor("testInsertReadProvider. Error vaildating joined Weather and Location data for a specific date.",
+                weatherCursor, weatherValues);
+
     }
 
     /* === Protected Methods === */
