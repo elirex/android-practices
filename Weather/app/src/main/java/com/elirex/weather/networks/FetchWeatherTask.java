@@ -1,5 +1,6 @@
 package com.elirex.weather.networks;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -44,6 +45,49 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
     public FetchWeatherTask(Context context, OnWeatherDataListener listener) {
         mContext = context;
         mDataListener = listener;
+    }
+
+
+    public long addLocation(String locationSetting, String cityName, double lat, double lon) {
+        long locationId;
+
+        // First, check if the location with the city name exists int the db
+        Cursor locationCursro = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                new String[] {WeatherContract.LocationEntry._ID},
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                new String[] {locationSetting},
+                null
+        );
+
+        if(locationCursro.moveToFirst()) {
+            int locationIdIndex = locationCursro.getColumnIndex(WeatherContract.LocationEntry._ID);
+            locationId = locationCursro.getLong(locationIdIndex);
+        } else {
+            // Now that the content provider is set up, inserting rows of data is pratty simple.
+            // Fist create a ContentValues object to hold the data you want to insert
+            ContentValues locatonValues = new ContentValues();
+
+            // Then add the data, along with the corresponding name of the data type,
+            // so the content provider knows wht kind of value is being inserted.
+            locatonValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
+            locatonValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
+            locatonValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
+            locatonValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
+
+            // Finally, insert location data into the database
+            Uri insertedUri = mContext.getContentResolver().insert(
+                    WeatherContract.LocationEntry.CONTENT_URI,
+                    locatonValues
+            );
+
+            // The resulting URI contains the ID for the row.
+            // Extract the locationId from the Uri.
+            locationId = ContentUris.parseId(insertedUri);
+        }
+
+        locationCursro.close();
+        return locationId;
     }
 
     @Override
@@ -153,10 +197,6 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         return roundedHigh + "/" + roundedLow;
     }
 
-    long addLocation(String locationSetting, String cityName, double lat,
-                     double lon) {
-        return -1;
-    }
 
     String[] convertContentValuesToUXFormat(Vector<ContentValues> cvv) {
         String resultStrs[] = new String[cvv.size()];
