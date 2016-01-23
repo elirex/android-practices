@@ -11,6 +11,8 @@ import android.net.Uri;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import junit.framework.Test;
+
 /**
  * Created by sheng on 1/10/16.
  */
@@ -291,6 +293,66 @@ public class TestProvider extends AndroidTestCase {
 
         mContext.getContentResolver().unregisterContentObserver(locationObserver);
         mContext.getContentResolver().unregisterContentObserver(weatherObserver);
+    }
+
+    public void testBulkInsert() {
+        // First, let's create a lcation value
+        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
+        Uri locationUri = mContext.getContentResolver().insert(
+                WeatherContract.LocationEntry.CONTENT_URI, testValues
+        );
+        long locationRowId = ContentUris.parseId(locationUri);
+
+        // Verify we got a row back.
+        assertTrue(locationRowId != -1);
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null, // Leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null  // sort order
+        );
+
+        TestUtilities.validateCursor("testBulkInsert. Error vaildating LocationEntry.",
+                cursor, testValues);
+
+        ContentValues bulkInsertContentValues[] = createBulkInsertWeatherValues(locationRowId);
+
+        // Register a content observer for our bul insert
+        TestUtilities.TestContentObserver weatherObserver = TestUtilities.getTextContentObserver();
+        mContext.getContentResolver().registerContentObserver(WeatherContract.WeatherEntry.CONTENT_URI,
+                true, weatherObserver);
+
+
+        int insertCount = mContext.getContentResolver().bulkInsert(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                bulkInsertContentValues);
+
+        weatherObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(weatherObserver);
+
+        assertEquals(insertCount, BULK_INSERT_RECORDS_TO_INSERT);
+
+        // A cursor is your primary interface to query results.
+        cursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                WeatherContract.WeatherEntry.COLUMN_DATE + " ASC" // sort order == by DATE ASCENDING
+        );
+
+
+        assertEquals(cursor.getCount(), BULK_INSERT_RECORDS_TO_INSERT);
+
+        cursor.moveToFirst();
+        for(int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; ++i, cursor.moveToNext()) {
+            TestUtilities.validateCurrentRecord("testBulkInsert. Error validating WeatherEntry " + i,
+                    cursor, bulkInsertContentValues[i]);
+        }
+        cursor.close();
     }
 
     /* === Protected Methods === */

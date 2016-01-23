@@ -305,7 +305,10 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             }
 
             if(cVVector.size() > 0) {
-
+                ContentValues cvArray[] = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+                mContext.getContentResolver()
+                        .bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
             }
 
             String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
@@ -313,17 +316,21 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                     locationSetting, System.currentTimeMillis()
             );
 
-            // Cursor cur = mContext.getContentResolver().query(weatherFor// LocationUri,
-            //         null, null, null, sortOrder);
+            Cursor cur = mContext.getContentResolver().query(
+                    weatherForLocationUri,
+                    null,
+                    null,
+                    null,
+                    sortOrder);
 
-            // cVVector = new Vector<ContentValues>(cur.getCount());
-            // if(cur.moveToFirst()) {
-            //     do {
-            //         ContentValues cv = new ContentValues();
-            //         DatabaseUtils.cursorRowToContentValues(cur, cv);
-            //         cVVector.add(cv);
-            //     } while (cur.moveToNext());
-            // }
+            cVVector = new Vector<ContentValues>(cur.getCount());
+            if(cur.moveToFirst()) {
+                do {
+                    ContentValues cv = new ContentValues();
+                    DatabaseUtils.cursorRowToContentValues(cur, cv);
+                    cVVector.add(cv);
+                } while (cur.moveToNext());
+            }
 
             Log.d(LOG_TAG, "FetcWeatherTask Complete. " + cVVector.size() + " Inserted");
             String resultStrs[] = convertContentValuesToUXFormat(cVVector);
