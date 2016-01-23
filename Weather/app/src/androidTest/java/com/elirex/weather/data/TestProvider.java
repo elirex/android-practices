@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 /**
  * Created by sheng on 1/10/16.
@@ -77,16 +78,9 @@ public class TestProvider extends AndroidTestCase {
         cursor.close();
     }
 
-    public void deleteAllRecordsFromDB() {
-        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete(WeatherContract.WeatherEntry.TABLE_NAME, null, null);
-        db.delete(WeatherContract.LocationEntry.TABLE_NAME, null, null);
-        db.close();
-    }
 
     public void deleteAllRecords() {
-        deleteAllRecordsFromDB();
+        deleteAllRecordsFromProvider();
     }
 
     public void testProviderRegistry() {
@@ -216,7 +210,87 @@ public class TestProvider extends AndroidTestCase {
         );
         TestUtilities.validateCursor("testInsertReadProvider. Error vaildating joined Weather and Location data for a specific date.",
                 weatherCursor, weatherValues);
+        cursor.close();
+        weatherCursor.close();
+    }
 
+    public void testUpdateLocation() {
+        // Create a new map of values, where column names are the keys
+        ContentValues values = TestUtilities.createNorthPoleLocationValues();
+
+        Uri locationUri = mContext.getContentResolver()
+                .insert(WeatherContract.LocationEntry.CONTENT_URI, values);
+        long locationRowId = ContentUris.parseId(locationUri);
+
+        // Verify we got a row back.
+        assertTrue(locationRowId != -1);
+        Log.d(LOG_TAG, "New row id: " + locationRowId);
+
+        ContentValues updatedValues = new ContentValues(values);
+        updatedValues.put(WeatherContract.LocationEntry._ID, locationRowId);
+        updatedValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "Santa's Village");
+
+        // Create a cursor with observer to make sure that the content provider is
+        // notifying the observers as expected
+        Cursor locationCursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        TestUtilities.TestContentObserver tco = TestUtilities.getTextContentObserver();
+        locationCursor.registerContentObserver(tco);
+
+        int count = mContext.getContentResolver().update(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                updatedValues, WeatherContract.LocationEntry._ID + "= ?",
+                new String[] {Long.toString(locationRowId)}
+        );
+
+        assertEquals(count, 1);
+
+        // Test to make sure our observer is called. If not, we throw an assertion.
+        tco.waitForNotificationOrFail();
+        locationCursor.unregisterContentObserver(tco);
+        locationCursor.close();
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null, // projection
+                WeatherContract.LocationEntry._ID + " = " + locationRowId,
+                null, // Values for the "where" clause
+                null // sort order
+        );
+
+        TestUtilities.validateCursor("testUpdateLocation, Error validating location entry update.",
+                cursor, updatedValues);
+        cursor.close();
+    }
+
+    public void testDeleteRecords() {
+        testInsertReadProvider();
+
+        // Register a content observer for our location delete.
+        TestUtilities.TestContentObserver locationObserver =
+                TestUtilities.getTextContentObserver();
+        mContext.getContentResolver().registerContentObserver(
+                WeatherContract.LocationEntry.CONTENT_URI, true, locationObserver);
+
+        // Register a content observer for our weather delete.
+        TestUtilities.TestContentObserver weatherObserver =
+                TestUtilities.getTextContentObserver();
+        mContext.getContentResolver().registerContentObserver(
+                WeatherContract.WeatherEntry.CONTENT_URI, true, weatherObserver);
+
+        deleteAllRecordsFromProvider();
+
+        locationObserver.waitForNotificationOrFail();
+        weatherObserver.waitForNotificationOrFail();
+
+        mContext.getContentResolver().unregisterContentObserver(locationObserver);
+        mContext.getContentResolver().unregisterContentObserver(weatherObserver);
     }
 
     /* === Protected Methods === */
