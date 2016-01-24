@@ -31,8 +31,12 @@ public class DetailActivity extends AppCompatActivity {
         if(savedInstanceState == null) {
             Intent intent = getIntent();
             Bundle args = null;
-            if(intent != null && intent.hasExtra(EXTRA_BUNDLE)) {
-                args = intent.getBundleExtra(EXTRA_BUNDLE);
+            // if(intent != null && intent.hasExtra(EXTRA_BUNDLE)) {
+            //     args = intent.getBundleExtra(EXTRA_BUNDLE);
+            // }
+            if(intent != null) {
+                args = new Bundle();
+                args.putString(DetailFragment.EXTRA_FORECAST, intent.getDataString());
             }
             Fragment fragmentClass = new DetailFragment();
             fragmentClass.setArguments(args);

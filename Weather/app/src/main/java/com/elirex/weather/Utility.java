@@ -27,7 +27,7 @@ public class Utility {
                 .equals(context.getString(R.string.pref_units_metric));
     }
 
-    static String formatTemperature(double temperature, boolean isMetric) {
+    public static String formatTemperature(double temperature, boolean isMetric) {
         double temp;
         if(!isMetric) {
             temp = 9 * temperature / 5 + 32;
@@ -37,7 +37,7 @@ public class Utility {
         return String.format("%.0f", temp);
     }
 
-    static String formatDate(long dateInMillis) {
+    public static String formatDate(long dateInMillis) {
         Date date = new Date(dateInMillis);
         return DateFormat.getDateInstance().format(date);
     }
