@@ -44,6 +44,9 @@ public class DetailFragment extends Fragment {
         Bundle args = getArguments();
         if(args != null) {
             mForecastStr = args.getString(EXTRA_FORECAST);
+        }
+
+        if(null != mForecastStr) {
             detail.setText(mForecastStr);
         }
         return mRootView;

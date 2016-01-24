@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.elirex.weather.Utility;
 import com.elirex.weather.fragments.ForecastFragment;
 import com.elirex.weather.R;
 
@@ -50,10 +51,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openPreferredLocationInMap() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String location = prefs.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
+        // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        // String location = prefs.getString(
+        //         getString(R.string.pref_location_key),
+        //         getString(R.string.pref_location_default));
+        String location = Utility.getPreferredLocation(this);
         Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
                 .appendQueryParameter("q", location).build();
 

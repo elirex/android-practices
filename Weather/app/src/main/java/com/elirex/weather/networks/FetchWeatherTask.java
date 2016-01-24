@@ -35,12 +35,16 @@ import java.util.Vector;
 /**
  * Created by Wang, Sheng-Yuan (Elirex) on 2015/11/22.
  */
-public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
     private static final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
     private Context mContext;
     private OnWeatherDataListener mDataListener;
+
+    public FetchWeatherTask(Context context) {
+        this(context, null);
+    }
 
     public FetchWeatherTask(Context context, OnWeatherDataListener listener) {
         mContext = context;
@@ -52,7 +56,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         long locationId;
 
         // First, check if the location with the city name exists int the db
-        Cursor locationCursro = mContext.getContentResolver().query(
+        Cursor locationCursor = mContext.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
                 new String[] {WeatherContract.LocationEntry._ID},
                 WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
@@ -60,25 +64,25 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 null
         );
 
-        if(locationCursro.moveToFirst()) {
-            int locationIdIndex = locationCursro.getColumnIndex(WeatherContract.LocationEntry._ID);
-            locationId = locationCursro.getLong(locationIdIndex);
+        if(locationCursor.moveToFirst()) {
+            int locationIdIndex = locationCursor.getColumnIndex(WeatherContract.LocationEntry._ID);
+            locationId = locationCursor.getLong(locationIdIndex);
         } else {
             // Now that the content provider is set up, inserting rows of data is pratty simple.
             // Fist create a ContentValues object to hold the data you want to insert
-            ContentValues locatonValues = new ContentValues();
+            ContentValues locationValues = new ContentValues();
 
             // Then add the data, along with the corresponding name of the data type,
             // so the content provider knows wht kind of value is being inserted.
-            locatonValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
-            locatonValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
-            locatonValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
-            locatonValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
+            locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
 
             // Finally, insert location data into the database
             Uri insertedUri = mContext.getContentResolver().insert(
                     WeatherContract.LocationEntry.CONTENT_URI,
-                    locatonValues
+                    locationValues
             );
 
             // The resulting URI contains the ID for the row.
@@ -86,32 +90,34 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             locationId = ContentUris.parseId(insertedUri);
         }
 
-        locationCursro.close();
+        locationCursor.close();
         return locationId;
     }
 
     @Override
-    protected String[] doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
         try {
-            return getWeatherDataFromJson(retrieveWeatherData(params[0]), params[0]);
+            // return getWeatherDataFromJson(retrieveWeatherData(params[0]), params[0]);
+            getWeatherDataFromJson(retrieveWeatherData(params[0]), params[0]);
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Parse JSON error", e);
-            return null;
+            // return null;
         }
+        return null;
     }
 
-    @Override
-    protected void onPostExecute(String response[]) {
-        for(String str : response) {
-            Log.d(LOG_TAG, "Response data:" + str);
-        }
+    // @Override
+    // protected void onPostExecute(String response[]) {
+    //     for(String str : response) {
+    //         Log.d(LOG_TAG, "Response data:" + str);
+    //     }
 
-        List<String> list = null;
-        if(response != null && response.length > 0) {
-            list = Arrays.asList(response);
-        }
-        mDataListener.onData(list);
-    }
+    //     List<String> list = null;
+    //     if(response != null && response.length > 0) {
+    //         list = Arrays.asList(response);
+    //     }
+    //     mDataListener.onData(list);
+    // }
 
     private String retrieveWeatherData(String location) {
         HttpURLConnection urlConnection = null;
@@ -171,49 +177,49 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
     }
 
-    private String getReadableDateString(long time) {
-        SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
-        return shortenedDateFormat.format(time);
-    }
+    // private String getReadableDateString(long time) {
+    //     SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
+    //     return shortenedDateFormat.format(time);
+    // }
 
-    private String formatHighLows(double high, double low) {
+    // private String formatHighLows(double high, double low) {
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String unitType = sharedPrefs.getString(
-                mContext.getString(R.string.pref_units_key),
-                mContext.getString(R.string.pref_units_metric));
-
-
-
-        if(unitType.equals(mContext.getString(R.string.pref_units_imperial))){
-            Log.d(LOG_TAG, " Imperial");
-            high = (high * 1.8) + 32;
-            low = (low * 1.8) + 32;
-        }
+    //     SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+    //     String unitType = sharedPrefs.getString(
+    //             mContext.getString(R.string.pref_units_key),
+    //             mContext.getString(R.string.pref_units_metric));
 
 
-        long roundedHigh = Math.round(high);
-        long roundedLow = Math.round(low);
-        return roundedHigh + "/" + roundedLow;
-    }
+
+    //     if(unitType.equals(mContext.getString(R.string.pref_units_imperial))){
+    //         Log.d(LOG_TAG, " Imperial");
+    //         high = (high * 1.8) + 32;
+    //         low = (low * 1.8) + 32;
+    //     }
 
 
-    String[] convertContentValuesToUXFormat(Vector<ContentValues> cvv) {
-        String resultStrs[] = new String[cvv.size()];
-        for(int i = 0; i < cvv.size(); ++i) {
-            ContentValues weatherValues = cvv.elementAt(i);
-            String highAndLow = formatHighLows(
-                    weatherValues.getAsDouble(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP),
-                    weatherValues.getAsDouble(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP));
-            resultStrs[i] = getReadableDateString(
-                    weatherValues.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE)) +
-                    " - " + weatherValues.getAsString(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC) +
-                    " - " + highAndLow;
-        }
-        return resultStrs;
-    }
+    //     long roundedHigh = Math.round(high);
+    //     long roundedLow = Math.round(low);
+    //     return roundedHigh + "/" + roundedLow;
+    // }
 
-    private String[] getWeatherDataFromJson(String forecastJsonStr,
+
+    // String[] convertContentValuesToUXFormat(Vector<ContentValues> cvv) {
+    //     String resultStrs[] = new String[cvv.size()];
+    //     for(int i = 0; i < cvv.size(); ++i) {
+    //         ContentValues weatherValues = cvv.elementAt(i);
+    //         String highAndLow = formatHighLows(
+    //                 weatherValues.getAsDouble(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP),
+    //                 weatherValues.getAsDouble(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP));
+    //         resultStrs[i] = getReadableDateString(
+    //                 weatherValues.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE)) +
+    //                 " - " + weatherValues.getAsString(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC) +
+    //                 " - " + highAndLow;
+    //     }
+    //     return resultStrs;
+    // }
+
+    private void getWeatherDataFromJson(String forecastJsonStr,
                                             String locationSetting) throws JSONException {
         final String OWM_CITY = "city";
         final String OWM_CITY_NAME = "name";
@@ -304,43 +310,46 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 cVVector.add(weatherValues);
             }
 
+            int inserted = 0;
             if(cVVector.size() > 0) {
                 ContentValues cvArray[] = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
-                mContext.getContentResolver()
-                        .bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
+            //     mContext.getContentResolver()
+            //             .bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
+            // }
+
+            // String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+            // Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
+            //         locationSetting, System.currentTimeMillis()
+            // );
+
+            // Cursor cur = mContext.getContentResolver().query(
+            //         weatherForLocationUri,
+            //         null,
+            //         null,
+            //         null,
+            //         sortOrder);
+
+            // cVVector = new Vector<ContentValues>(cur.getCount());
+            // if(cur.moveToFirst()) {
+            //     do {
+            //         ContentValues cv = new ContentValues();
+            //         DatabaseUtils.cursorRowToContentValues(cur, cv);
+            //         cVVector.add(cv);
+            //     } while (cur.moveToNext());
+                inserted = mContext.getContentResolver().bulkInsert(
+                        WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
             }
 
-            String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-            Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                    locationSetting, System.currentTimeMillis()
-            );
-
-            Cursor cur = mContext.getContentResolver().query(
-                    weatherForLocationUri,
-                    null,
-                    null,
-                    null,
-                    sortOrder);
-
-            cVVector = new Vector<ContentValues>(cur.getCount());
-            if(cur.moveToFirst()) {
-                do {
-                    ContentValues cv = new ContentValues();
-                    DatabaseUtils.cursorRowToContentValues(cur, cv);
-                    cVVector.add(cv);
-                } while (cur.moveToNext());
-            }
-
-            Log.d(LOG_TAG, "FetcWeatherTask Complete. " + cVVector.size() + " Inserted");
-            String resultStrs[] = convertContentValuesToUXFormat(cVVector);
-            return resultStrs;
+            // Log.d(LOG_TAG, "FetcWeatherTask Complete. " + cVVector.size() + " Inserted");
+            // String resultStrs[] = convertContentValuesToUXFormat(cVVector);
+            // / return resultStrs;
+            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + " Inserted");
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
-        return null;
-
+        // return null;
     }
 
     public interface OnWeatherDataListener {
