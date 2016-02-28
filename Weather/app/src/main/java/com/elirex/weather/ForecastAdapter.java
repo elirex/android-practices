@@ -3,6 +3,7 @@ package com.elirex.weather;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import com.elirex.weather.data.WeatherContract;
 import com.elirex.weather.fragments.ForecastFragment;
 
 import org.w3c.dom.Text;
+import org.w3c.dom.ls.LSOutput;
 
 /**
  * Created by Wang, Sheng-Yuan (Elirex) on 2016/1/24.
@@ -59,7 +61,22 @@ public class ForecastAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        viewHolder.iconView.setImageResource(R.mipmap.ic_launcher);
+        int viewType = getItemViewType(cursor.getPosition());
+        // Get weather icon, according the view type
+        switch(viewType) {
+            case VIEW_TYPE_TODAY: {
+                viewHolder.iconView.setImageResource(
+                        Utility.getArtResourceForWeatherCondition(
+                                cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID)));
+                break;
+            }
+            case VIEW_TYPE_FUTURE_DAY: {
+                viewHolder.iconView.setImageResource(
+                        Utility.getIconResourceForWeatherCondition(
+                                cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID)));
+                break;
+            }
+        }
 
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
         viewHolder.dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
@@ -76,9 +93,9 @@ public class ForecastAdapter extends CursorAdapter {
         viewHolder.lowView.setText(Utility.formatTemperature(context, low, isMetric));
     }
 
-    private String formatHighLows(double hight, double low) {
+    private String formatHighLows(double high, double low) {
         boolean isMetric = Utility.isMetric(mContext);
-        String hightLowStr = Utility.formatTemperature(mContext, hight, isMetric) +
+        String hightLowStr = Utility.formatTemperature(mContext, high, isMetric) +
                 "/" + Utility.formatTemperature(mContext,low, isMetric);
         return hightLowStr;
     }
