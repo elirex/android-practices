@@ -26,8 +26,7 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        setContentView(R.layout.activity_detail);
         if(savedInstanceState == null) {
             Intent intent = getIntent();
             Bundle args = null;
@@ -40,8 +39,12 @@ public class DetailActivity extends AppCompatActivity {
             }
             Fragment fragmentClass = new DetailFragment();
             fragmentClass.setArguments(args);
+            // getFragmentManager().beginTransaction()
+            //         .replace(R.id.container, fragmentClass,
+            //                 getString(R.string.title_activity_detail))
+            //         .commit();
             getFragmentManager().beginTransaction()
-                    .replace(R.id.container, fragmentClass,
+                    .replace(R.id.weather_detail_container, fragmentClass,
                             getString(R.string.title_activity_detail))
                     .commit();
         }

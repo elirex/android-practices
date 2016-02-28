@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.elirex.weather.Utility;
+import com.elirex.weather.fragments.DetailFragment;
 import com.elirex.weather.fragments.ForecastFragment;
 import com.elirex.weather.R;
 
@@ -18,18 +19,29 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private final String FORECASTFARGMEN_TAG = "FFTAG";
+    // private final String FORECASTFARGMEN_TAG = "FFTAG";
+    private final String DETAILFRAGMENT_TAG = "DFTAG";
 
     private String mLocation;
+    private boolean mTwoPane;
 
     protected void onCreate(Bundle savedInstanceState) {
-        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
+        mLocation = Utility.getPreferredLocation(this);
+
         setContentView(R.layout.activity_main);
-        if(savedInstanceState == null) {
+        // if(savedInstanceState == null) {
+        //     getFragmentManager().beginTransaction()
+        //             .add(R.id.container, new ForecastFragment(), FORECASTFARGMEN_TAG)
+        //             .commit();
+        // }
+        if(findViewById(R.id.weather_detail_container) != null) {
+            mTwoPane = true;
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment(), FORECASTFARGMEN_TAG)
-                    .commit();
+                    .replace(R.id.weather_detail_container, new DetailFragment(),
+                            DETAILFRAGMENT_TAG).commit();
+        } else {
+            mTwoPane = false;
         }
     }
 
@@ -38,8 +50,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         String location = Utility.getPreferredLocation(this);
         if(location != null && !location.equals(mLocation)) {
+            // ForecastFragment ff = (ForecastFragment) getFragmentManager()
+            //         .findFragmentByTag(FORECASTFARGMEN_TAG);
             ForecastFragment ff = (ForecastFragment) getFragmentManager()
-                    .findFragmentByTag(FORECASTFARGMEN_TAG);
+                    .findFragmentById(R.id.fragment_forecast);
             if(null != ff) {
                 ff.onLocationChange();
             }

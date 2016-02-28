@@ -20,7 +20,7 @@ public class SettingsActivity extends AppCompatActivity {
                 setContentView(R.layout.activity_main);
                 if(savedInstanceState == null) {
                         getFragmentManager().beginTransaction()
-                                .replace(R.id.container, new SettingsFragment())
+                                .replace(R.id.fragment_forecast, new SettingsFragment())
                                 .commit();
                 }
         }

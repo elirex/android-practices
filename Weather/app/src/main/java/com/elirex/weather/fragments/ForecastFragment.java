@@ -205,4 +205,10 @@ public class ForecastFragment extends Fragment implements
     //     mForecastAdapter.addAll(list);
     //     mForecastAdapter.notifyDataSetChanged();
     // }
+
+    /* Class and Interface */
+    public interface Callback {
+        // DetailFragmentCallback for when an itemhas been selected.
+        public void onItemSelected(Uri dataUri);
+    }
 }
