@@ -79,6 +79,8 @@ public class DetailFragment extends Fragment implements
     private TextView mWindView;
     private TextView mPressureView;
 
+    private Uri mUri;
+
     public DetailFragment() {
         setHasOptionsMenu(true);
     }
@@ -87,6 +89,12 @@ public class DetailFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Bundle args = getArguments();
+        if(args != null) {
+            mUri = args.getParcelable(EXTRA_FORECAST);
+        }
+
         mRootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
 
@@ -111,22 +119,33 @@ public class DetailFragment extends Fragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.v(LOG_TAG, "In onCreateLoader");
-        Bundle a = getArguments();
-        if(a == null) {
-            return null;
+        // Bundle a = getArguments();
+        // if(a == null) {
+        //     return null;
+        // }
+
+
+        // Uri uri = Uri.parse(a.getString(EXTRA_FORECAST));
+
+        // return new CursorLoader(
+        //         getActivity(),
+        //         uri,
+        //         DETAIL_COLUMNS,
+        //         null,
+        //         null,
+        //         null
+        // );
+        if(mUri != null) {
+            return new CursorLoader(
+                    getActivity(),
+                    mUri,
+                    DETAIL_COLUMNS,
+                    null,
+                    null,
+                    null
+            );
         }
-
-
-        Uri uri = Uri.parse(a.getString(EXTRA_FORECAST));
-
-        return new CursorLoader(
-                getActivity(),
-                uri,
-                DETAIL_COLUMNS,
-                null,
-                null,
-                null
-        );
+        return null;
     }
 
 
@@ -198,6 +217,18 @@ public class DetailFragment extends Fragment implements
         // } else {
         //     Log.d(LOG_TAG, "Share Action Provider is null?");
         // }
+    }
+
+    public void onLocationChange(String newLocation) {
+        // Replace the uri, since the location has changed
+        Uri uri = mUri;
+        if(null != uri) {
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updateUri = WeatherContract.WeatherEntry
+                    .buildWeatherLocationWithDate(newLocation, date);
+            mUri = updateUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
     }
 
     private Intent createShareForecastIntent() {

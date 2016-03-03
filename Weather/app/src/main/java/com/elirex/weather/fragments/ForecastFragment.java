@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Contacts;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -60,11 +61,15 @@ public class ForecastFragment extends Fragment implements
     public static final int COL_COORD_LAT = 7;
     public static final int COL_COORD_LONG = 8;
 
+    private static final String SELECTED_KEY = "selected_position";
+
     private View mRootView;
     private ListView mListView;
     // private ArrayAdapter<String> mForecastAdapter;
     private ForecastAdapter mForecastAdapter;
     private SwipeRefreshLayout mRefresh;
+    private int mPosition = ListView.INVALID_POSITION;
+    private boolean mUseTodayLayout;
 
     @Nullable
     @Override
@@ -72,7 +77,19 @@ public class ForecastFragment extends Fragment implements
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_forecast, container, false);
         setupUIComponents();
+        if(savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+        mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
         return mRootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -95,9 +112,8 @@ public class ForecastFragment extends Fragment implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String locationSetting = Utility.getPreferredLocation(getActivity());
-
         String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        String locationSetting = Utility.getPreferredLocation(getActivity());
         Uri weatherForLocationUri = WeatherContract.WeatherEntry
                 .buildWeatherLocationWithStartDate(locationSetting, System.currentTimeMillis());
 
@@ -112,12 +128,22 @@ public class ForecastFragment extends Fragment implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mForecastAdapter.swapCursor(data);
+        if(mPosition != ListView.INVALID_POSITION) {
+            mListView.smoothScrollToPosition(mPosition);
+        }
         mRefresh.setRefreshing(false);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mForecastAdapter.swapCursor(null);
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        mUseTodayLayout = useTodayLayout;
+        if(mForecastAdapter != null) {
+            mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
     }
 
     private void updateWeather() {
@@ -151,6 +177,8 @@ public class ForecastFragment extends Fragment implements
         // mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
         mListView.setAdapter(mForecastAdapter);
+
+
     }
 
     private AdapterView.OnItemClickListener onItemClickListener =
@@ -164,20 +192,25 @@ public class ForecastFragment extends Fragment implements
                     // Intent intent = new Intent(getActivity(), DetailActivity.class);
                     // intent.putExtra(DetailActivity.EXTRA_BUNDLE, args);
                     // startActivity(intent);
-
                     Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                     if(cursor != null) {
                         String locationSetting = Utility.getPreferredLocation(getActivity());
 
-                        Intent intent = new Intent(getActivity(), DetailActivity.class);
-                        intent.setData(WeatherContract.WeatherEntry
-                                .buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)));
+                        // Intent intent = new Intent(getActivity(), DetailActivity.class);
+                        //intent.setData(WeatherContract.WeatherEntry
+                        //        .buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)));
                         // intent.putExtra(DetailActivity.EXTRA_BUNDLE);
-                        startActivity(intent);
+                        // startActivity(intent);
+                        ((Callback) getActivity()).onItemSelected(
+                                WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                        locationSetting, cursor.getLong(COL_WEATHER_DATE)
+                                ));
 
                     }
+                    mPosition = position;
 
                 }
+
             };
 
 

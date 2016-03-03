@@ -6,16 +6,19 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telecom.Call;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.elirex.weather.Utility;
+import com.elirex.weather.data.WeatherContract;
 import com.elirex.weather.fragments.DetailFragment;
 import com.elirex.weather.fragments.ForecastFragment;
 import com.elirex.weather.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        ForecastFragment.Callback {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -43,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mTwoPane = false;
         }
+        getSupportActionBar().setElevation(0f);
+        ForecastFragment forecastFragment = ((ForecastFragment) getFragmentManager()
+            .findFragmentById(R.id.fragment_forecast));
+        forecastFragment.setUseTodayLayout(!mTwoPane);
     }
 
     @Override
@@ -57,7 +64,29 @@ public class MainActivity extends AppCompatActivity {
             if(null != ff) {
                 ff.onLocationChange();
             }
+            DetailFragment df = (DetailFragment) getFragmentManager()
+                    .findFragmentByTag(DETAILFRAGMENT_TAG);
+            if(null != df) {
+                df.onLocationChange(location);
+            }
             mLocation = location;
+        }
+    }
+
+    @Override
+    public void onItemSelected(Uri dataUri) {
+        Bundle args = new Bundle();
+        args.putParcelable(DetailFragment.EXTRA_FORECAST, dataUri);
+        if(mTwoPane) {
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.weather_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra(DetailActivity.EXTRA_BUNDLE, args);
+            startActivity(intent);
         }
     }
 

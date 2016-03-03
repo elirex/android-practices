@@ -7,29 +7,36 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:minHeight="?android:listPreferredItemHeight"
+    android:background="@drawable/touch_selector"
     android:padding="16dp"
     >
 
-    <ImageView
-       android:id="@+id/list_item_icon"
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:src="@mipmap/ic_launcher"
-       />
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        >
+        <ImageView
+            android:id="@+id/list_item_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"
+            />
+
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="7"
         android:orientation="vertical"
-        android:paddingLeft="16dp"
         >
 
         <TextView
             android:id="@+id/list_item_date_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:fontFamily="sans-serif-condensed"
             tools:text="Today"
             />
 
@@ -37,15 +44,17 @@
             android:id="@+id/list_item_forecast_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"
+            android:fontFamily="sans-serif-condensed"
+            android:textAppearance="?android:textAppearanceSmall"
             tools:text="Sunny"
             />
 
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="5"
         android:orientation="vertical"
         >
 
@@ -53,7 +62,8 @@
             android:id="@+id/list_item_high_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"
+            android:fontFamily="sans-serif-condensed"
+            android:textAppearance="?android:textAppearanceLarge"
             tools:text="88"
             />
 
@@ -61,7 +71,8 @@
             android:id="@+id/list_item_low_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"
+            android:fontFamily="sans-serif-condensed"
+            android:textAppearance="?android:textAppearanceSmall"
             tools:text="63"
             />
 

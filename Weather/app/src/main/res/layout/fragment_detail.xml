@@ -17,6 +17,8 @@
             android:id="@+id/detail_day_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="24sp"
             tools:text="Tomorrow"
             />
 
@@ -24,6 +26,8 @@
             android:id="@+id/detail_date_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="16sp"
             tools:text="June 24"
             />
 
@@ -45,6 +49,8 @@
                     android:id="@+id/detail_high_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:textSize="96sp"
                     tools:text="21\u00B0"
                     />
 
@@ -52,6 +58,8 @@
                     android:id="@+id/detail_low_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:textSize="48sp"
                     tools:text="11\u00B0"
                     />
 
@@ -75,6 +83,8 @@
                     android:id="@+id/detail_forecast_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:textAppearance="?android:textAppearanceLarge"
                     tools:text="Clear"
                     />
 
@@ -86,6 +96,8 @@
             android:id="@+id/detail_humidity_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:textAppearance="?android:textAppearanceLarge"
             tools:text="48%"
             />
 
@@ -93,6 +105,10 @@
             android:id="@+id/detail_wind_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="sans-serif-condensed"
+            android:textAppearance="?android:textAppearanceLarge"
             tools:text="6 km/h NW"
             />
 
@@ -100,6 +116,8 @@
             android:id="@+id/detail_pressure_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:textAppearance="?android:textAppearanceLarge"
             tools:text="1014"
             />
 
