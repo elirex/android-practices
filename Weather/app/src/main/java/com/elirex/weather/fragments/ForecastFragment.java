@@ -3,17 +3,14 @@ package com.elirex.weather.fragments;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Contacts;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +21,7 @@ import com.elirex.weather.ForecastAdapter;
 import com.elirex.weather.Utility;
 import com.elirex.weather.data.WeatherContract;
 import com.elirex.weather.R;
-import com.elirex.weather.services.WeatherService;
+import com.elirex.weather.syncs.WeatherSyncAdapter;
 
 /**
  * Created by Wang, Sheng-Yuan (Elirex) on 2015/11/22.
@@ -152,10 +149,23 @@ public class ForecastFragment extends Fragment implements
         // weatherTask.execute(getLocation());
         // weatherTask.execute(location);
 
-        Intent intent = new Intent(getActivity(), WeatherService.class);
-        intent.putExtra(WeatherService.LOCATION_QUERY_EXTRA,
-                Utility.getPreferredLocation(getActivity()));
-        getActivity().startService(intent);
+        // Intent intent = new Intent(getActivity(), WeatherService.class);
+        // intent.putExtra(WeatherService.LOCATION_QUERY_EXTRA,
+        //         Utility.getPreferredLocation(getActivity()));
+        // getActivity().startService(intent);
+
+        // Intent alarmIntent = new Intent(getActivity(), WeatherService.AlarmReceiver.class);
+        // alarmIntent.putExtra(WeatherService.LOCATION_QUERY_EXTRA,
+        //         Utility.getPreferredLocation(getActivity()));
+
+        // Wrap in a pending intent which only fires once.
+        // PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0,
+        //         alarmIntent, PendingIntent.FLAG_ONE_SHOT);
+        // AlarmManager am = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        // Set the AlarmManager to wake up the system.
+        // am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pi);
+
+        WeatherSyncAdapter.syncImmediately(getActivity());
     }
 
     private void setupUIComponents() {

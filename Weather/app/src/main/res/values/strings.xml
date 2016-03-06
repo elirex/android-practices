@@ -48,4 +48,9 @@
         Humidity: <xliff:g id="humidity">%1.0f</xliff:g> %%
     </string>
 
+
+    <!-- SyncAdatper related -->
+    <string name="sync_account_type">weather.elirex.com</string>
+    <string name="content_authority">com.elirex.weather</string>
+
 </resources>

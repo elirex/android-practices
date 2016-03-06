@@ -1,21 +1,18 @@
 package com.elirex.weather.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telecom.Call;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.elirex.weather.Utility;
-import com.elirex.weather.data.WeatherContract;
 import com.elirex.weather.fragments.DetailFragment;
 import com.elirex.weather.fragments.ForecastFragment;
 import com.elirex.weather.R;
+import com.elirex.weather.syncs.WeatherSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements
         ForecastFragment.Callback {
@@ -50,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements
         ForecastFragment forecastFragment = ((ForecastFragment) getFragmentManager()
             .findFragmentById(R.id.fragment_forecast));
         forecastFragment.setUseTodayLayout(!mTwoPane);
+        WeatherSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
