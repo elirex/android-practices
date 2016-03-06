@@ -38,6 +38,8 @@
             android:name=".data.WeatherProvider"
             />
 
+        <service android:name=".services.WeatherService"/>
+
     </application>
 
 </manifest>

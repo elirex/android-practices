@@ -22,10 +22,9 @@ import android.widget.ListView;
 
 import com.elirex.weather.ForecastAdapter;
 import com.elirex.weather.Utility;
-import com.elirex.weather.activities.DetailActivity;
 import com.elirex.weather.data.WeatherContract;
-import com.elirex.weather.networks.FetchWeatherTask;
 import com.elirex.weather.R;
+import com.elirex.weather.services.WeatherService;
 
 /**
  * Created by Wang, Sheng-Yuan (Elirex) on 2015/11/22.
@@ -148,10 +147,15 @@ public class ForecastFragment extends Fragment implements
 
     private void updateWeather() {
         // FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), this);
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
-        String location = Utility.getPreferredLocation(getActivity());
+        // FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
+        // String location = Utility.getPreferredLocation(getActivity());
         // weatherTask.execute(getLocation());
-        weatherTask.execute(location);
+        // weatherTask.execute(location);
+
+        Intent intent = new Intent(getActivity(), WeatherService.class);
+        intent.putExtra(WeatherService.LOCATION_QUERY_EXTRA,
+                Utility.getPreferredLocation(getActivity()));
+        getActivity().startService(intent);
     }
 
     private void setupUIComponents() {
