@@ -14,7 +14,7 @@ import java.util.GregorianCalendar;
  */
 public class WeatherContract {
 
-    public static final String CONTENT_AUTHORITY = "com.elirex.weather";
+    public static final String CONTENT_AUTHORITY = "com.elirex.weather.app";
 
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://"
             + CONTENT_AUTHORITY);

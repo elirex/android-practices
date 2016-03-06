@@ -41,32 +41,30 @@
             android:authorities="@string/content_authority"
             android:name=".data.WeatherProvider"
             android:exported="false"
-            android:syncable="true"
-            />
+            android:syncable="true" />
 
-        <!-- SyncAdatper's dump authentication service -->
+        <!-- SyncAdapter's dummy authentication service -->
         <service android:name=".syncs.WeatherAuthenticatorService">
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
+                <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator"
-                />
+                android:resource="@xml/authenticator" />
         </service>
 
         <!-- The SyncAdapter service -->
-        <servcie
-            android:name=".services.WeatherSyncService"
+        <service
+            android:name=".syncs.WeatherSyncService"
             android:exported="true"
             >
-            <intent-fillter>
-                <action android:name="android.content.SyncAdapter"/>
-            </intent-fillter>
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
-        </servcie>
+        </service>
 
     </application>
 

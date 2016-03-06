@@ -62,14 +62,20 @@ public class Utility {
                 .equals(context.getString(R.string.pref_units_metric));
     }
 
-    public static String formatTemperature(Context context, double temperature, boolean isMetric) {
-        double temp;
-        if(!isMetric) {
-            temp = 9 * temperature / 5 + 32;
-        } else {
-            temp = temperature;
+    public static String formatTemperature(Context context, double temperature) {
+    // public static String formatTemperature(Context context, double temperature, boolean isMetric) {
+        // double temp;
+        // if(!isMetric) {
+        //     temp = 9 * temperature / 5 + 32;
+        // } else {
+        //     temp = temperature;
+        // }
+        String suffix = "\u00B0";
+        if(!isMetric(context)) {
+            temperature = (temperature * 1.8) + 32;
         }
-        return context.getString(R.string.format_temperature, temp);
+        // return context.getString(R.string.format_temperature, temp);
+        return String.format(context.getString(R.string.format_temperature), temperature);
     }
 
     public static String formatDate(long dateInMilliseconds) {
