@@ -3,6 +3,7 @@ package com.elirex.weather.fragments;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -11,7 +12,11 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -67,6 +72,12 @@ public class ForecastFragment extends Fragment implements
     private int mPosition = ListView.INVALID_POSITION;
     private boolean mUseTodayLayout;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,6 +109,45 @@ public class ForecastFragment extends Fragment implements
     public void onLocationChange() {
         updateWeather();
         getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_fragment_forecast, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.action_map) {
+            openPreferredLocationInMap();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void openPreferredLocationInMap() {
+        // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        // String location = prefs.getString(
+        //         getString(R.string.pref_location_key),
+        //         getString(R.string.pref_location_default));
+        if(null != mForecastAdapter) {
+            Cursor c = mForecastAdapter.getCursor();
+            if(null != c) {
+                c.moveToPosition(0);
+                String posLat = c.getString(COL_COORD_LAT);
+                String posLong = c.getString(COL_COORD_LONG);
+                Uri geoLocation = Uri.parse("geo:" + posLat + "," + posLong);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(geoLocation);
+                if(intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    Log.d(LOG_TAG, "Couldn't call " + geoLocation.toString()
+                            + ", no receiving apps installed!");
+                }
+            }
+        }
     }
 
     // @Override

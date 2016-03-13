@@ -5,9 +5,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activities.MainActivity"
     >
+
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:id="@+id/action_map"
+        android:title="@string/action_map"
         app:showAsAction="never"
         />
+
 </menu>
