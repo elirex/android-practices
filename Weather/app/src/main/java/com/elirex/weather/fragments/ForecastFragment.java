@@ -242,7 +242,9 @@ public class ForecastFragment extends Fragment implements
     }
 
     private void setupUIComponents() {
+        View emptyView = mRootView.findViewById(R.id.textview_listview_forecast_empty);
         mListView = (ListView) mRootView.findViewById(R.id.listview_forecast);
+        mListView.setEmptyView(emptyView);
         mListView.setOnItemClickListener(onItemClickListener);
         mRefresh = (SwipeRefreshLayout) mRootView
                 .findViewById(R.id.refresh_listview_forecast);
@@ -319,7 +321,7 @@ public class ForecastFragment extends Fragment implements
 
     private void updateEmptyView() {
         if(mForecastAdapter.getCount() == 0) {
-            TextView textView = (TextView) mRootView.findViewById(R.id.textview_listview_forecast_empty);
+            TextView textView = (TextView) getView().findViewById(R.id.textview_listview_forecast_empty);
             if(null != textView) {
                 // If the cursor is empty,  why do we have an invalid location
                 int message = R.string.empty_forecast_list;
@@ -332,6 +334,9 @@ public class ForecastFragment extends Fragment implements
                         break;
                     case WeatherSyncAdapter.LOCATION_STATUS_SERVER_INVALID:
                         message = R.string.empty_forecast_list_server_error;
+                        break;
+                    case WeatherSyncAdapter.LOCATION_STATUS_INVALID:
+                        message = R.string.empty_forecast_list_invalid_location;
                         break;
                     default:
                         if(!Utility.isNetworkAvailable(getActivity())) {

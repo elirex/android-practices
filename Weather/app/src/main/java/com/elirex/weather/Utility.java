@@ -1,6 +1,5 @@
 package com.elirex.weather;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -13,7 +12,6 @@ import com.elirex.weather.syncs.WeatherSyncAdapter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.SynchronousQueue;
 
 /**
  * Created by Wang, Sheng-Yuan (Elirex) on 2016/1/24.
@@ -198,7 +196,13 @@ public class Utility {
     public static @WeatherSyncAdapter.LocationStatus int getLocationStatus(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         return sp.getInt(context.getString(R.string.pref_enable_notifications_key),
-                WeatherSyncAdapter.LOCATION_STATUS_UNKNOW);
+                WeatherSyncAdapter.LOCATION_STATUS_UNKNOWN);
+    }
+
+    public static void resetLocationStatus(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        sp.edit().putInt(context.getString(R.string.pref_location_status_key),
+                WeatherSyncAdapter.LOCATION_STATUS_UNKNOWN).apply();
     }
 
 

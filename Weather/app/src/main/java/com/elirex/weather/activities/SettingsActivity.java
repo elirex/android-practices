@@ -2,6 +2,7 @@ package com.elirex.weather.activities;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -13,6 +14,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
 import com.elirex.weather.R;
+import com.elirex.weather.Utility;
+import com.elirex.weather.data.WeatherContract;
+import com.elirex.weather.syncs.WeatherSyncAdapter;
 
 /**
  * Created by Wang, Sheng-Yuan (Elirex) on 2015/11/22.
@@ -31,7 +35,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         public static class SettingsFragment extends PreferenceFragment
-                implements Preference.OnPreferenceChangeListener {
+                implements Preference.OnPreferenceChangeListener,
+                SharedPreferences.OnSharedPreferenceChangeListener {
 
                 @Override
                 public void onCreate(Bundle savedInstanceState) {
@@ -53,7 +58,26 @@ public class SettingsActivity extends AppCompatActivity {
 
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        String stringValue = newValue.toString();
+                        setPreferenceSummary(preference, newValue);
+                        return true;
+                }
+
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                        if(key.equals(getString(R.string.pref_location_key))) {
+                                Utility.resetLocationStatus(getActivity());
+                                WeatherSyncAdapter.syncImmediately(getActivity());
+                        } else if(key.equals(getString(R.string.pref_units_key))) {
+                                getActivity().getContentResolver().notifyChange(
+                                        WeatherContract.WeatherEntry.CONTENT_URI,
+                                        null
+                                );
+                        }
+                }
+
+                private void setPreferenceSummary(Preference preference, Object value) {
+                        String stringValue = value.toString();
+                        String key = preference.getKey();
                         if(preference instanceof ListPreference) {
                                 ListPreference listPreference = (ListPreference) preference;
                                 int prefIndex = listPreference.findIndexOfValue(stringValue);
@@ -63,7 +87,6 @@ public class SettingsActivity extends AppCompatActivity {
                         } else {
                                 preference.setSummary(stringValue);
                         }
-                        return true;
                 }
         }
 
