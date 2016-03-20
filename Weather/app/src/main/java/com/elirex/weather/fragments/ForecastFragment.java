@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.elirex.weather.ForecastAdapter;
 import com.elirex.weather.Utility;
@@ -32,7 +33,8 @@ import com.elirex.weather.syncs.WeatherSyncAdapter;
  * Created by Wang, Sheng-Yuan (Elirex) on 2015/11/22.
  */
 public class ForecastFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
@@ -105,6 +107,19 @@ public class ForecastFragment extends Fragment implements
         super.onActivityCreated(savedInstanceState);
     }
 
+    @Override
+    public void onResume() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.registerOnSharedPreferenceChangeListener(this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
+    }
 
     public void onLocationChange() {
         updateWeather();
@@ -178,6 +193,7 @@ public class ForecastFragment extends Fragment implements
             mListView.smoothScrollToPosition(mPosition);
         }
         mRefresh.setRefreshing(false);
+        updateEmptyView();
     }
 
     @Override
@@ -189,6 +205,13 @@ public class ForecastFragment extends Fragment implements
         mUseTodayLayout = useTodayLayout;
         if(mForecastAdapter != null) {
             mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(key.equals(getString(R.string.pref_enable_notifications_key))) {
+            updateEmptyView();
         }
     }
 
@@ -292,6 +315,33 @@ public class ForecastFragment extends Fragment implements
                 .getDefaultSharedPreferences(getActivity());
         return prefs.getString(getString(R.string.pref_location_key),
                 getString(R.string.title_activity_detail));
+    }
+
+    private void updateEmptyView() {
+        if(mForecastAdapter.getCount() == 0) {
+            TextView textView = (TextView) mRootView.findViewById(R.id.textview_listview_forecast_empty);
+            if(null != textView) {
+                // If the cursor is empty,  why do we have an invalid location
+                int message = R.string.empty_forecast_list;
+
+                @WeatherSyncAdapter.LocationStatus int location =
+                        Utility.getLocationStatus(getActivity());
+                switch (location) {
+                    case WeatherSyncAdapter.LOCATION_STATUS_SERVER_DOWN:
+                        message = R.string.empty_forecast_list_server_down;
+                        break;
+                    case WeatherSyncAdapter.LOCATION_STATUS_SERVER_INVALID:
+                        message = R.string.empty_forecast_list_server_error;
+                        break;
+                    default:
+                        if(!Utility.isNetworkAvailable(getActivity())) {
+                            message = R.string.empty_forecast_list_no_network;
+                        }
+                }
+                textView.setText(message);
+            }
+
+        }
     }
 
     // @Override
