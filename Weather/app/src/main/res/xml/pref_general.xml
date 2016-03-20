@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/com.elirex.weather"
+    xmlns:custom="http://schemas.android.com/apk/res/com.elirex.weather"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
@@ -12,7 +12,7 @@
         android:defaultValue="@string/pref_location_default"
         android:inputType="text"
         android:singleLine="true"
-        custom:minLenght="3"
+        custom:minLength="3"
         />
 
     <ListPreference
