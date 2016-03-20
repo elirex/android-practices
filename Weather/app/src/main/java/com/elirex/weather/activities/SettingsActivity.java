@@ -70,19 +70,40 @@ public class SettingsActivity extends AppCompatActivity {
                         } else if(key.equals(getString(R.string.pref_units_key))) {
                                 getActivity().getContentResolver().notifyChange(
                                         WeatherContract.WeatherEntry.CONTENT_URI,
-                                        null
-                                );
+                                        null);
+                        } else if(key.equals(getString(R.string.pref_location_status_key))) {
+                                Preference locationPreference =
+                                        findPreference(getString(R.string.pref_enable_notifications_key));
+                                bindPreferenceSummaryToValue(locationPreference);
                         }
                 }
 
                 private void setPreferenceSummary(Preference preference, Object value) {
                         String stringValue = value.toString();
                         String key = preference.getKey();
-                        if(preference instanceof ListPreference) {
+                        if (preference instanceof ListPreference) {
                                 ListPreference listPreference = (ListPreference) preference;
                                 int prefIndex = listPreference.findIndexOfValue(stringValue);
-                                if(prefIndex >= 0) {
+                                if (prefIndex >= 0) {
                                         preference.setSummary(listPreference.getEntries()[prefIndex]);
+                                }
+                        } else if(key.equals(getString(R.string.pref_location_key))) {
+                                @WeatherSyncAdapter.LocationStatus int status =
+                                        Utility.getLocationStatus(getActivity());
+                                switch (status) {
+                                        case WeatherSyncAdapter.LOCATION_STATUS_OK:
+                                                preference.setSummary(stringValue);
+                                                break;
+                                        case WeatherSyncAdapter.LOCATION_STATUS_UNKNOWN:
+                                                preference.setSummary(
+                                                        getString(R.string.pref_location_error_description, value.toString()));
+                                                break;
+                                        case WeatherSyncAdapter.LOCATION_STATUS_INVALID:
+                                                preference.setSummary(
+                                                        getString(R.string.pref_location_unknown_description, value.toString()));
+                                                break;
+                                        default:
+                                                preference.setSummary(stringValue);
                                 }
                         } else {
                                 preference.setSummary(stringValue);

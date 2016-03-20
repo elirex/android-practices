@@ -195,7 +195,7 @@ public class Utility {
     @SuppressWarnings("ResourceType")
     public static @WeatherSyncAdapter.LocationStatus int getLocationStatus(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        return sp.getInt(context.getString(R.string.pref_enable_notifications_key),
+        return sp.getInt(context.getString(R.string.pref_location_status_key),
                 WeatherSyncAdapter.LOCATION_STATUS_UNKNOWN);
     }
 
